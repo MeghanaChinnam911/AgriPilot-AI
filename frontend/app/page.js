@@ -36,6 +36,31 @@ export default function Home() {
   const [routes, setRoutes] = useState([]);
   const [collaborationSchema, setCollaborationSchema] = useState(null);
 
+  // Date & Season (computed on client using browser time)
+  const [currentDateString, setCurrentDateString] = useState("");
+
+  const computeSeason = (month) => {
+    // month: 1-12
+    if (month >= 6 && month <= 10) return "Kharif Season"; // June - October
+    if (month >= 11 || month <= 3) return "Rabi Season"; // November - March
+    if (month >= 4 && month <= 5) return "Zaid Season"; // April - May
+    return "";
+  };
+
+  useEffect(() => {
+    try {
+      const d = new Date();
+      if (isNaN(d.getTime())) throw new Error("Invalid date");
+      const pad = (n) => String(n).padStart(2, "0");
+      const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      const season = computeSeason(d.getMonth() + 1);
+      setCurrentDateString(`${dateStr} (${season})`);
+    } catch (e) {
+      setCurrentDateString("Date Unavailable");
+    }
+  }, []);
+
+
   // Interactive UI Inputs
   const [chatMessage, setChatMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([
@@ -575,7 +600,7 @@ export default function Home() {
                 Weather Alert: Heavy Rain Warning
               </div>
             )}
-            <span className="text-xs text-emerald-500/60 font-mono">2026-06-01 (Kharif Season)</span>
+            <span className="text-xs text-emerald-500/60 font-mono">{currentDateString || 'Date Unavailable'}</span>
           </div>
         </header>
 
