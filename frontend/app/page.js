@@ -1,17 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  Sprout, Thermometer, CloudRain, TrendingUp, AlertTriangle, 
-  MapPin, HelpCircle, User, Info, DollarSign, Calendar, 
+import {
+  Sprout, Thermometer, CloudRain, TrendingUp, AlertTriangle,
+  MapPin, HelpCircle, User, Info, DollarSign, Calendar,
   TrendingDown, CheckCircle2, ShieldAlert, Cpu, Network,
   Mic, MicOff, Volume2, Upload, FileText, Play, ArrowRight, Check, X
 } from "lucide-react";
 
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "https://agripilot-ai-1.onrender.com";
+
 export default function Home() {
   // Navigation & View State
   const [currentView, setCurrentView] = useState("dashboard"); // dashboard, profile, discovery, recommendations, timeline, market, disease, weather, logistics, schemes, profit, chat
-  
+
   // App Core State
   const [profile, setProfile] = useState({
     location: "California Central Valley",
@@ -22,7 +24,7 @@ export default function Home() {
     budget: 1500,
     farming_experience: "Intermediate"
   });
-  
+
   const [profileSaved, setProfileSaved] = useState(true);
   const [selectedCrop, setSelectedCrop] = useState("Tomato");
   const [cropsList, setCropsList] = useState([]);
@@ -33,7 +35,7 @@ export default function Home() {
   const [marketData, setMarketData] = useState(null);
   const [routes, setRoutes] = useState([]);
   const [collaborationSchema, setCollaborationSchema] = useState(null);
-  
+
   // Interactive UI Inputs
   const [chatMessage, setChatMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([
@@ -41,12 +43,12 @@ export default function Home() {
   ]);
   const [chatLoading, setChatLoading] = useState(false);
   const [activeAgents, setActiveAgents] = useState(["Supervisor Agent", "Crop Planning Agent", "Weather Risk Agent"]);
-  
+
   // Multimodal Inputs
   const [diseaseImage, setDiseaseImage] = useState(null);
   const [diseaseDiagnosis, setDiseaseDiagnosis] = useState(null);
   const [diseaseLoading, setDiseaseLoading] = useState(false);
-  
+
   const [documentType, setDocumentType] = useState("soil_report");
   const [documentAnalysis, setDocumentAnalysis] = useState(null);
   const [docLoading, setDocLoading] = useState(false);
@@ -76,39 +78,39 @@ export default function Home() {
   const fetchDashboardData = async () => {
     try {
       // Fetch Weather
-      const wRes = await fetch("http://localhost:8000/api/weather");
+      const wRes = await fetch(`${API_BASE_URL}/api/weather`);
       if (wRes.ok) {
         const wData = await wRes.json();
         setWeatherData(wData);
         setWeatherAlerts(wData.alerts || []);
       }
-      
+
       // Fetch Markets & Logistics
-      const mRes = await fetch("http://localhost:8000/api/market");
+      const mRes = await fetch(`${API_BASE_URL}/api/market`);
       if (mRes.ok) {
         const mData = await mRes.json();
         setMarketData(mData.market_data);
         setRoutes(mData.logistics_routes || []);
       }
-      
+
       // Fetch Timeline & Logs
-      const tRes = await fetch("http://localhost:8000/api/timeline");
+      const tRes = await fetch(`${API_BASE_URL}/api/timeline`);
       if (tRes.ok) {
         const tData = await tRes.json();
         setSelectedCrop(tData.selected_crop || "Tomato");
         setTimeline(tData.timeline || []);
         setDecisionLogs(tData.decision_logs || []);
       }
-      
+
       // Fetch crops list
-      const cRes = await fetch("http://localhost:8000/api/crops/discover");
+      const cRes = await fetch(`${API_BASE_URL}/api/crops/discover`);
       if (cRes.ok) {
         const cData = await cRes.json();
         setCropsList(cData);
       }
 
       // Fetch agents collaboration
-      const agRes = await fetch("http://localhost:8000/api/collaboration");
+      const agRes = await fetch(`${API_BASE_URL}/api/collaboration`);
       if (agRes.ok) {
         const agData = await agRes.json();
         setCollaborationSchema(agData);
@@ -118,20 +120,20 @@ export default function Home() {
       // Fallback local initializers
       setSelectedCrop("Tomato");
       setTimeline([
-        {week: 1, stage: "Land Preparation", activity: "Deep ploughing, applying farmyard manure, adjusting soil pH.", risks: "Soil-borne pathogens", fertilizers: "Organic compost (5 tons/acre)", water: "Pre-irrigation to maintain moisture", diseases: "None", market: "N/A"},
-        {week: 2, stage: "Seed Sowing & Nursery", activity: "Sowing seeds in nursery beds or pro-trays.", risks: "Damping-off in nursery", fertilizers: "NPK starter solution", water: "Daily light sprinkling", diseases: "Damping-off", market: "N/A"},
-        {week: 4, stage: "Transplanting", activity: "Moving 25-day old seedlings to the main field with drip lines.", risks: "Transplant shock", fertilizers: "DAP 50kg, MOP 25kg per acre", water: "Drip irrigation 1 hour daily", diseases: "Root rot", market: "N/A"},
-        {week: 6, stage: "Vegetative & Trellising", activity: "Staking plants using bamboo poles and twine.", risks: "Weeds, aphids", fertilizers: "Urea 25kg, Micronutrients", water: "Drip irrigation alternate days", diseases: "Early Blight", market: "Analyze input costs"},
-        {week: 8, stage: "Flowering & Fruit Set", activity: "Foliar spray of Calcium Nitrate and Boron.", risks: "Flower drop due to heat", fertilizers: "Calcium Nitrate 10kg, Boron 1kg", water: "Consistent moisture", diseases: "Late Blight, Thrips", market: "Check mandi demand"},
-        {week: 12, stage: "Harvest Planning", activity: "Harvesting breaker-stage tomatoes for distant markets.", risks: "Fruit cracking, transit delays", fertilizers: "SOP 15kg (color improvements)", water: "Reduce watering duration", diseases: "Fruit rot", market: "Compare Vashi vs local cooperative rates"},
-        {week: 13, stage: "Market Dispatch", activity: "Sorting, grading, packing, and transporting to mandi.", risks: "Transit delays", fertilizers: "None", water: "Stop irrigation 2 days prior", diseases: "None", market: "Highest bid: eNAM Central Mandi"}
+        { week: 1, stage: "Land Preparation", activity: "Deep ploughing, applying farmyard manure, adjusting soil pH.", risks: "Soil-borne pathogens", fertilizers: "Organic compost (5 tons/acre)", water: "Pre-irrigation to maintain moisture", diseases: "None", market: "N/A" },
+        { week: 2, stage: "Seed Sowing & Nursery", activity: "Sowing seeds in nursery beds or pro-trays.", risks: "Damping-off in nursery", fertilizers: "NPK starter solution", water: "Daily light sprinkling", diseases: "Damping-off", market: "N/A" },
+        { week: 4, stage: "Transplanting", activity: "Moving 25-day old seedlings to the main field with drip lines.", risks: "Transplant shock", fertilizers: "DAP 50kg, MOP 25kg per acre", water: "Drip irrigation 1 hour daily", diseases: "Root rot", market: "N/A" },
+        { week: 6, stage: "Vegetative & Trellising", activity: "Staking plants using bamboo poles and twine.", risks: "Weeds, aphids", fertilizers: "Urea 25kg, Micronutrients", water: "Drip irrigation alternate days", diseases: "Early Blight", market: "Analyze input costs" },
+        { week: 8, stage: "Flowering & Fruit Set", activity: "Foliar spray of Calcium Nitrate and Boron.", risks: "Flower drop due to heat", fertilizers: "Calcium Nitrate 10kg, Boron 1kg", water: "Consistent moisture", diseases: "Late Blight, Thrips", market: "Check mandi demand" },
+        { week: 12, stage: "Harvest Planning", activity: "Harvesting breaker-stage tomatoes for distant markets.", risks: "Fruit cracking, transit delays", fertilizers: "SOP 15kg (color improvements)", water: "Reduce watering duration", diseases: "Fruit rot", market: "Compare Vashi vs local cooperative rates" },
+        { week: 13, stage: "Market Dispatch", activity: "Sorting, grading, packing, and transporting to mandi.", risks: "Transit delays", fertilizers: "None", water: "Stop irrigation 2 days prior", diseases: "None", market: "Highest bid: eNAM Central Mandi" }
       ]);
       setDecisionLogs([
-        {day: 12, agent: "Weather Risk Agent", decision: "Detected high-probability heavy rainfall (80mm) forecast starting Wed. Suspend fertilizers.", status: "Critical"},
-        {day: 12, agent: "Supervisor Agent", decision: "Overrode default timeline. Ordered clearing of main drain channels to mitigate field flood hazards.", status: "Enforced"},
-        {day: 15, agent: "Market Intelligence Agent", decision: "Prices spiked by +$200/quintal at Vashi Wholesale due to severe highway washouts.", status: "Approved"},
-        {day: 15, agent: "Logistics Agent", decision: "Rerouted logistics carrier to Vashi Wholesale. Recommends closed reefer truck for cargo protection.", status: "Enforced"},
-        {day: 15, agent: "Market & Profit Agent", decision: "Delay harvest delivery by 3 days. Estimated net revenue gain is +$350.", status: "Enforced"}
+        { day: 12, agent: "Weather Risk Agent", decision: "Detected high-probability heavy rainfall (80mm) forecast starting Wed. Suspend fertilizers.", status: "Critical" },
+        { day: 12, agent: "Supervisor Agent", decision: "Overrode default timeline. Ordered clearing of main drain channels to mitigate field flood hazards.", status: "Enforced" },
+        { day: 15, agent: "Market Intelligence Agent", decision: "Prices spiked by +$200/quintal at Vashi Wholesale due to severe highway washouts.", status: "Approved" },
+        { day: 15, agent: "Logistics Agent", decision: "Rerouted logistics carrier to Vashi Wholesale. Recommends closed reefer truck for cargo protection.", status: "Enforced" },
+        { day: 15, agent: "Market & Profit Agent", decision: "Delay harvest delivery by 3 days. Estimated net revenue gain is +$350.", status: "Enforced" }
       ]);
       setWeatherAlerts([
         {
@@ -152,7 +154,7 @@ export default function Home() {
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:8000/api/profile", {
+      const res = await fetch(`${API_BASE_URL}/api/profile`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profile)
@@ -160,7 +162,7 @@ export default function Home() {
       if (res.ok) {
         setProfileSaved(true);
         // Discover crops automatically
-        const cRes = await fetch("http://localhost:8000/api/crops/discover");
+        const cRes = await fetch(`${API_BASE_URL}/api/crops/discover`);
         if (cRes.ok) {
           const cData = await cRes.json();
           setCropsList(cData);
@@ -177,7 +179,7 @@ export default function Home() {
   const handleSelectCrop = async (cropName) => {
     setSelectedCrop(cropName);
     try {
-      const res = await fetch("http://localhost:8000/api/crops/select", {
+      const res = await fetch(`${API_BASE_URL}/api/crops/select`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ crop_name: cropName })
@@ -210,7 +212,7 @@ export default function Home() {
     setChatLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8000/api/chat", {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -266,7 +268,7 @@ export default function Home() {
     } else {
       const SpeechGrammarList = window.SpeechGrammarList || window.webkitSpeechGrammarList;
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      
+
       const r = new SpeechRecognition();
       r.continuous = false;
       r.interimResults = false;
@@ -305,9 +307,9 @@ export default function Home() {
       setDiseaseImage(reader.result);
       setDiseaseLoading(true);
       setDiseaseDiagnosis(null);
-      
+
       try {
-        const res = await fetch("http://localhost:8000/api/disease/detect", {
+        const res = await fetch(`${API_BASE_URL}/api/disease/detect`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ file_bytes: reader.result })
@@ -353,7 +355,7 @@ export default function Home() {
     const reader = new FileReader();
     reader.onload = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/document/parse", {
+        const res = await fetch(`${API_BASE_URL}/api/document/parse`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -411,7 +413,7 @@ export default function Home() {
     setSimulating(true);
     setSimulationResults([]);
     try {
-      const res = await fetch("http://localhost:8000/api/scenario/simulate", {
+      const res = await fetch(`${API_BASE_URL}/api/scenario/simulate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -463,7 +465,7 @@ export default function Home() {
     const text = messageText.toLowerCase();
     let answer = "";
     let invoked = ["Supervisor Agent"];
-    
+
     if (text.includes("water") || text.includes("irrigation") || text.includes("rain")) {
       invoked.push("Weather Risk Agent");
       invoked.push("Research Agent");
@@ -480,13 +482,13 @@ export default function Home() {
     } else {
       answer = `### AgriPilot Autonomous Recommendation\n\nI have evaluated your farm profile located on Loamy soil growing **${crop}**:\n\n* **Weather Threat:** Heavy rainfall scheduled starting Wednesday. Drainage checks are critical.\n* **Farming tasks:** Ensure stakes are firm to keep fruits off damp soil.\n* **Market advice:** Hold sales until next week's transport corridor disruption spikes the price index.`;
     }
-    
+
     return { answer, invoked_agents: invoked };
   };
 
   return (
     <div className="flex h-screen bg-[#040908] text-[#f0fdf4] font-sans">
-      
+
       {/* Sidebar Navigation */}
       <aside className="w-64 bg-[#070f0e] border-r border-[#10b981]/15 flex flex-col justify-between shrink-0">
         <div>
@@ -523,11 +525,10 @@ export default function Home() {
                 <button
                   key={tab.id}
                   onClick={() => setCurrentView(tab.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200 ${
-                    active 
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium" 
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all duration-200 ${active
+                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium"
                       : "text-emerald-100/50 hover:bg-emerald-500/5 hover:text-emerald-300"
-                  }`}
+                    }`}
                 >
                   <Icon className={`w-4 h-4 ${active ? "text-emerald-400" : "text-emerald-100/40"}`} />
                   {tab.label}
@@ -553,7 +554,7 @@ export default function Home() {
 
       {/* Main Panel Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        
+
         {/* Upper Status Header */}
         <header className="h-16 border-b border-[#10b981]/15 bg-[#070f0e]/50 backdrop-blur px-8 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-4">
@@ -580,14 +581,14 @@ export default function Home() {
 
         {/* Central View Space */}
         <div className="flex-1 overflow-y-auto p-8 space-y-8">
-          
+
           {/* VIEW: DASHBOARD */}
           {currentView === "dashboard" && (
             <div className="space-y-8">
-              
+
               {/* Upper Banner & Stats */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                
+
                 <div className="glass-panel p-5 rounded-xl space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-emerald-500/70 font-semibold uppercase">Predicted Yield</span>
@@ -641,7 +642,7 @@ export default function Home() {
                         {/* Circular SVG Gauge */}
                         <svg className="w-24 h-24 transform -rotate-90">
                           <circle cx="48" cy="48" r="40" stroke="rgba(16, 185, 129, 0.05)" strokeWidth="8" fill="transparent" />
-                          <circle cx="48" cy="48" r="40" stroke="#10b981" strokeWidth="8" fill="transparent" 
+                          <circle cx="48" cy="48" r="40" stroke="#10b981" strokeWidth="8" fill="transparent"
                             strokeDasharray={251.2}
                             strokeDashoffset={251.2 - (251.2 * gauge.value) / 100}
                             strokeLinecap="round"
@@ -660,12 +661,12 @@ export default function Home() {
 
               {/* Core visual graph: Collaboration Map & Decision Log split */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                
+
                 {/* Agent Collaboration graph panel */}
                 <div className="lg:col-span-8 glass-panel p-6 rounded-xl space-y-6 relative overflow-hidden">
                   <h4 className="text-sm font-bold text-emerald-300 uppercase tracking-wider">LangGraph Agent Multi-Agent Collaboration Graph</h4>
                   <div className="w-full h-80 relative flex items-center justify-center border border-emerald-500/5 bg-[#030605] rounded-lg">
-                    
+
                     {/* SVG Connections */}
                     <svg className="absolute inset-0 w-full h-full pointer-events-none">
                       {/* Draw lines from center Supervisor (x:50%, y:50%) to surrounding agents */}
@@ -702,7 +703,7 @@ export default function Home() {
                     {/* Center Supervisor Node */}
                     <div className="absolute z-10 w-24 h-24 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex flex-col items-center justify-center text-center shadow-lg shadow-emerald-500/20">
                       <Cpu className="text-emerald-400 w-6 h-6 animate-pulse" />
-                      <span className="text-[10px] font-bold text-emerald-200 mt-1 uppercase leading-tight">Supervisor<br/>Agent</span>
+                      <span className="text-[10px] font-bold text-emerald-200 mt-1 uppercase leading-tight">Supervisor<br />Agent</span>
                     </div>
 
                     {/* Surrounding Node Labels */}
@@ -722,11 +723,10 @@ export default function Home() {
                       return (
                         <div
                           key={index}
-                          className={`absolute p-2 rounded border text-[10px] font-medium transition-all ${node.x} ${
-                            isActive
+                          className={`absolute p-2 rounded border text-[10px] font-medium transition-all ${node.x} ${isActive
                               ? "bg-emerald-500/10 border-emerald-400 text-emerald-300 shadow-md shadow-emerald-500/10"
                               : "bg-[#0c1412] border-emerald-500/10 text-emerald-100/30"
-                          }`}
+                            }`}
                         >
                           {node.label}
                         </div>
@@ -751,15 +751,13 @@ export default function Home() {
                         return (
                           <div key={index} className="flex gap-3 border-l-2 border-emerald-500/20 pl-4 relative">
                             {/* Dot overlay */}
-                            <span className={`absolute -left-1.5 top-1.5 w-3 h-3 rounded-full border ${
-                              isCritical ? "bg-rose-500 border-rose-400" : "bg-emerald-500 border-emerald-400"
-                            }`} />
+                            <span className={`absolute -left-1.5 top-1.5 w-3 h-3 rounded-full border ${isCritical ? "bg-rose-500 border-rose-400" : "bg-emerald-500 border-emerald-400"
+                              }`} />
                             <div className="space-y-1">
                               <span className="text-[10px] text-emerald-500/60 font-mono">Day {log.day} - {log.agent}</span>
                               <p className="text-xs text-emerald-200 font-light">{log.decision}</p>
-                              <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] uppercase font-bold ${
-                                isCritical ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                              }`}>
+                              <span className={`inline-block px-1.5 py-0.5 rounded text-[9px] uppercase font-bold ${isCritical ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                }`}>
                                 {log.status}
                               </span>
                             </div>
@@ -768,7 +766,7 @@ export default function Home() {
                       })}
                     </div>
                   </div>
-                  <button 
+                  <button
                     onClick={() => setCurrentView("recommendations")}
                     className="w-full mt-4 text-center py-2 border border-emerald-500/20 rounded-lg text-xs text-emerald-400 hover:bg-emerald-500/5 transition"
                   >
@@ -874,11 +872,10 @@ export default function Home() {
                         type="button"
                         key={exp}
                         onClick={() => setProfile({ ...profile, farming_experience: exp })}
-                        className={`py-2 rounded-lg text-xs font-semibold border transition ${
-                          profile.farming_experience === exp
+                        className={`py-2 rounded-lg text-xs font-semibold border transition ${profile.farming_experience === exp
                             ? "bg-emerald-500/20 border-emerald-400 text-emerald-300"
                             : "bg-emerald-950/10 border-emerald-500/10 text-emerald-500 hover:bg-emerald-500/5"
-                        }`}
+                          }`}
                       >
                         {exp}
                       </button>
@@ -912,11 +909,10 @@ export default function Home() {
                     <div className="space-y-2">
                       <div className="flex justify-between items-start">
                         <h4 className="text-lg font-bold text-emerald-100 group-hover:text-emerald-400 transition">{crop.crop_name}</h4>
-                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
-                          crop.risk_level.includes("High") 
-                            ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" 
+                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${crop.risk_level.includes("High")
+                            ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
                             : "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                        }`}>
+                          }`}>
                           {crop.risk_level.split(" ")[0]} Risk
                         </span>
                       </div>
@@ -944,11 +940,10 @@ export default function Home() {
 
                     <button
                       onClick={() => handleSelectCrop(crop.crop_name)}
-                      className={`w-full py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                        selectedCrop === crop.crop_name
+                      className={`w-full py-2.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${selectedCrop === crop.crop_name
                           ? "bg-emerald-500 text-black"
                           : "bg-emerald-950/20 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
-                      }`}
+                        }`}
                     >
                       {selectedCrop === crop.crop_name ? (
                         <>Selected Crop <Check className="w-3.5 h-3.5" /></>
@@ -976,14 +971,12 @@ export default function Home() {
                 {decisionLogs.map((log, index) => {
                   const isCritical = log.status === "Critical" || log.status === "Enforced";
                   return (
-                    <div key={index} className={`glass-panel p-5 rounded-xl border-l-4 transition ${
-                      isCritical ? "border-l-rose-500 bg-rose-950/5" : "border-l-emerald-500"
-                    }`}>
+                    <div key={index} className={`glass-panel p-5 rounded-xl border-l-4 transition ${isCritical ? "border-l-rose-500 bg-rose-950/5" : "border-l-emerald-500"
+                      }`}>
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2.5">
-                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                            isCritical ? "bg-rose-500/20 text-rose-400" : "bg-emerald-500/10 text-emerald-400"
-                          }`}>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isCritical ? "bg-rose-500/20 text-rose-400" : "bg-emerald-500/10 text-emerald-400"
+                            }`}>
                             <Cpu className="w-4 h-4" />
                           </div>
                           <div>
@@ -991,9 +984,8 @@ export default function Home() {
                             <p className="text-[10px] text-emerald-500/60 font-mono">Day {log.day} of cultivation cycle</p>
                           </div>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${
-                          isCritical ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase ${isCritical ? "bg-rose-500/20 text-rose-400 border border-rose-500/30" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          }`}>
                           {log.status}
                         </span>
                       </div>
@@ -1015,7 +1007,7 @@ export default function Home() {
                   </h3>
                   <p className="text-xs text-emerald-500/70 mt-1">Autonomous schedule updating continuously based on weather threats and input prices.</p>
                 </div>
-                <button 
+                <button
                   onClick={() => setCurrentView("chat")}
                   className="px-4 py-2 bg-emerald-500 text-black text-xs font-bold rounded-lg hover:bg-emerald-600 transition flex items-center gap-1.5"
                 >
@@ -1026,21 +1018,20 @@ export default function Home() {
               {/* Timeline Horizontal Line / Steps */}
               <div className="glass-panel p-8 rounded-xl space-y-8 overflow-x-auto">
                 <div className="flex justify-between min-w-[900px] relative pb-4">
-                  
+
                   {/* Gray background connector */}
                   <div className="absolute top-5 left-4 right-4 h-0.5 bg-emerald-950" />
-                  
+
                   {timeline.map((stage, idx) => {
                     const isActive = idx === 4; // Mock Stage Week 8 active
                     return (
                       <div key={idx} className="flex flex-col items-center text-center w-32 relative z-10 space-y-2 group">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs border-2 transition ${
-                          isActive 
-                            ? "bg-emerald-500 text-black border-emerald-400 glow-animation scale-110" 
-                            : idx < 4 
-                            ? "bg-emerald-950/80 text-emerald-400 border-emerald-500/30" 
-                            : "bg-[#0b1210] text-emerald-500/40 border-emerald-500/10"
-                        }`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs border-2 transition ${isActive
+                            ? "bg-emerald-500 text-black border-emerald-400 glow-animation scale-110"
+                            : idx < 4
+                              ? "bg-emerald-950/80 text-emerald-400 border-emerald-500/30"
+                              : "bg-[#0b1210] text-emerald-500/40 border-emerald-500/10"
+                          }`}>
                           W{stage.week}
                         </div>
                         <div className="space-y-1">
@@ -1062,22 +1053,21 @@ export default function Home() {
                 {timeline.map((stage, idx) => {
                   const isActive = idx === 4;
                   return (
-                    <div key={idx} className={`glass-panel p-6 rounded-xl space-y-4 border-t-4 transition ${
-                      isActive 
-                        ? "border-t-emerald-400 bg-emerald-950/5 shadow-md shadow-emerald-500/5" 
+                    <div key={idx} className={`glass-panel p-6 rounded-xl space-y-4 border-t-4 transition ${isActive
+                        ? "border-t-emerald-400 bg-emerald-950/5 shadow-md shadow-emerald-500/5"
                         : "border-t-emerald-500/10"
-                    }`}>
+                      }`}>
                       <div className="flex justify-between items-center">
                         <span className="text-xs font-bold text-emerald-400 font-mono">Week {stage.week}</span>
                         <span className="text-xs font-semibold text-emerald-200">{stage.stage}</span>
                       </div>
-                      
+
                       <div className="space-y-2.5 text-xs">
                         <div>
                           <span className="text-emerald-500/60 block font-medium uppercase text-[9px]">Activity:</span>
                           <p className="text-emerald-200 font-light leading-relaxed">{stage.activity}</p>
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-4 pt-2 border-t border-emerald-500/5">
                           <div>
                             <span className="text-emerald-500/60 block font-medium uppercase text-[9px]">Fertilizer:</span>
@@ -1122,7 +1112,7 @@ export default function Home() {
 
               {/* Mandi pricing list */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
+
                 {/* Rates Table */}
                 <div className="glass-panel p-6 rounded-xl space-y-4">
                   <h4 className="text-sm font-bold text-emerald-300 uppercase tracking-wider">Active Wholesale Mandi Rates ({selectedCrop})</h4>
@@ -1140,9 +1130,8 @@ export default function Home() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-emerald-300 font-mono">{mandi.rate}</p>
-                          <span className={`text-[10px] font-semibold ${
-                            mandi.trend === "up" ? "text-emerald-400" : mandi.trend === "down" ? "text-rose-400" : "text-emerald-500/50"
-                          }`}>
+                          <span className={`text-[10px] font-semibold ${mandi.trend === "up" ? "text-emerald-400" : mandi.trend === "down" ? "text-rose-400" : "text-emerald-500/50"
+                            }`}>
                             {mandi.change.startsWith("+") || mandi.change.startsWith("-") ? mandi.change : `+${mandi.change}`}
                           </span>
                         </div>
@@ -1165,7 +1154,7 @@ export default function Home() {
                       <line x1="0" y1="25" x2="100" y2="25" stroke="#112a23" strokeWidth="0.5" strokeDasharray="3,3" />
                       <line x1="0" y1="50" x2="100" y2="50" stroke="#112a23" strokeWidth="0.5" strokeDasharray="3,3" />
                       <line x1="0" y1="75" x2="100" y2="75" stroke="#112a23" strokeWidth="0.5" strokeDasharray="3,3" />
-                      
+
                       {/* Price curve line path */}
                       <path
                         d="M 5,75 Q 30,30 50,15 T 95,85"
@@ -1173,7 +1162,7 @@ export default function Home() {
                         stroke="#10b981"
                         strokeWidth="2.5"
                       />
-                      
+
                       {/* Glowing dots at key points */}
                       <circle cx="5" cy="75" r="2" fill="#10b981" />
                       <circle cx="28" cy="45" r="2" fill="#10b981" />
@@ -1215,7 +1204,7 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                
+
                 {/* Upload Area */}
                 <div className="glass-panel p-6 rounded-xl flex flex-col items-center justify-center border-2 border-dashed border-emerald-500/20 hover:border-emerald-400/40 transition relative min-h-64">
                   {diseaseImage ? (
@@ -1223,7 +1212,7 @@ export default function Home() {
                       <img src={diseaseImage} alt="Crop leaf" className="w-full max-h-48 object-cover rounded-lg" />
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] text-emerald-500/50">Image loaded</span>
-                        <button 
+                        <button
                           onClick={() => { setDiseaseImage(null); setDiseaseDiagnosis(null); }}
                           className="text-xs text-rose-400 hover:text-rose-300"
                         >
@@ -1262,7 +1251,7 @@ export default function Home() {
 
                       <div className="space-y-2 text-xs font-light text-emerald-200">
                         <p className="leading-relaxed"><strong className="font-semibold text-emerald-400">Diagnosis Details:</strong> {diseaseDiagnosis.diagnosis}</p>
-                        
+
                         <div className="pt-2 border-t border-emerald-500/10 space-y-1">
                           <strong className="font-semibold text-emerald-400 block text-[10px] uppercase">Treatment Action Checklist:</strong>
                           {diseaseDiagnosis.treatment.map((t, idx) => (
@@ -1315,7 +1304,7 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                
+
                 {/* Left metrics block */}
                 <div className="md:col-span-1 glass-panel p-6 rounded-xl space-y-4 flex flex-col justify-between">
                   <div className="space-y-3">
@@ -1348,12 +1337,12 @@ export default function Home() {
                     <div className="flex items-center gap-2 text-rose-400 font-bold uppercase text-xs tracking-wider">
                       <AlertTriangle className="w-4.5 h-4.5" /> Severe Climate Warning
                     </div>
-                    
+
                     {weatherAlerts.map((alert, idx) => (
                       <div key={idx} className="space-y-2">
                         <h4 className="text-sm font-bold text-rose-200">{alert.type}</h4>
                         <p className="text-xs text-emerald-200/90 font-light leading-relaxed">{alert.description}</p>
-                        
+
                         <div className="pt-2 space-y-1">
                           <strong className="text-[10px] text-rose-400 uppercase font-bold block">Supervisor Enforced Protection Tasks:</strong>
                           {alert.actions.map((act, idy) => (
@@ -1408,11 +1397,11 @@ export default function Home() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
+
                 {/* Routes details */}
                 <div className="lg:col-span-2 glass-panel p-6 rounded-xl space-y-6">
                   <h4 className="text-sm font-bold text-emerald-300 uppercase tracking-wider">Recommended Delivery Strategies</h4>
-                  
+
                   <div className="space-y-4">
                     {routes.map((route, idx) => (
                       <div key={idx} className="bg-[#091512] border border-emerald-500/10 p-5 rounded-lg flex flex-col sm:flex-row justify-between gap-4">
@@ -1453,7 +1442,7 @@ export default function Home() {
                     {/* Simulated map circles */}
                     <div className="absolute w-24 h-24 rounded-full border border-emerald-500/10 animate-ping opacity-25" />
                     <div className="absolute w-48 h-48 rounded-full border border-emerald-500/5 animate-ping opacity-15" />
-                    
+
                     {/* Route line */}
                     <svg className="absolute inset-0 w-full h-full">
                       <path d="M 30,180 Q 90,90 180,50" fill="none" stroke="#10b981" strokeWidth="2.5" strokeDasharray="5,5" className="animate-[dash_8s_linear_infinite]" />
@@ -1497,12 +1486,12 @@ export default function Home() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  
+
                   {/* Selector & Drag/Drop */}
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-emerald-400 uppercase">Document Category</label>
-                      <select 
+                      <select
                         value={documentType}
                         onChange={(e) => setDocumentType(e.target.value)}
                         className="w-full bg-[#081512] border border-emerald-500/20 focus:border-emerald-400 rounded-lg px-4 py-2.5 text-sm text-emerald-100 outline-none"
@@ -1589,7 +1578,7 @@ export default function Home() {
               {/* Subsidies match list */}
               <div className="space-y-4">
                 <h4 className="text-sm font-bold text-emerald-300 uppercase tracking-wider">Eligible Schemes matching Farmer Profile</h4>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {[
                     { name: "PM-KISAN Income Support", benefit: "$75/year direct transfer", info: "Direct cash aid sent in 3 intervals.", guidance: "Requires Aadhaar land registration validation." },
@@ -1628,10 +1617,10 @@ export default function Home() {
               {/* Simulator Config */}
               <div className="glass-panel p-6 rounded-xl space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
+
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-emerald-400 uppercase">Simulation Scenario</label>
-                    <select 
+                    <select
                       value={scenarioType}
                       onChange={(e) => setScenarioType(e.target.value)}
                       className="w-full bg-[#081512] border border-emerald-500/20 focus:border-emerald-400 rounded-lg px-4 py-2.5 text-sm text-emerald-100 outline-none"
@@ -1645,7 +1634,7 @@ export default function Home() {
                   {scenarioType === "delay_sell" ? (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-emerald-400 uppercase">Delay Selling Weeks</label>
-                      <input 
+                      <input
                         type="range" min="1" max="4" value={delayWeeks}
                         onChange={(e) => setDelayWeeks(parseInt(e.target.value))}
                         className="w-full h-2 bg-emerald-950 rounded-lg appearance-none cursor-pointer accent-emerald-500 mt-3"
@@ -1655,7 +1644,7 @@ export default function Home() {
                   ) : scenarioType === "weather_risk" ? (
                     <div className="space-y-2">
                       <label className="text-xs font-semibold text-emerald-400 uppercase">Rainfall Shift Percentage</label>
-                      <input 
+                      <input
                         type="range" min="-40" max="40" step="20" value={rainfallChange}
                         onChange={(e) => setRainfallChange(parseInt(e.target.value))}
                         className="w-full h-2 bg-emerald-950 rounded-lg appearance-none cursor-pointer accent-emerald-500 mt-3"
@@ -1744,11 +1733,10 @@ export default function Home() {
                               <td className="px-6 py-4 font-mono text-rose-300">{r.yield_impact}</td>
                               <td className="px-6 py-4 font-mono">{r.irrigation_cost}</td>
                               <td className="px-6 py-4">
-                                <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold ${
-                                  r.risk_rating === "Critical" || r.risk_rating === "Severe" || r.risk_rating.includes("Medium-High")
+                                <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold ${r.risk_rating === "Critical" || r.risk_rating === "Severe" || r.risk_rating.includes("Medium-High")
                                     ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
                                     : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                }`}>
+                                  }`}>
                                   {r.risk_rating}
                                 </span>
                               </td>
@@ -1773,7 +1761,7 @@ export default function Home() {
           {/* VIEW: COPILOT CHAT */}
           {currentView === "chat" && (
             <div className="max-w-4xl mx-auto glass-panel p-6 rounded-xl flex flex-col h-[calc(100vh-180px)]">
-              
+
               {/* Chat Header */}
               <div className="border-b border-[#10b981]/15 pb-4 flex justify-between items-center shrink-0">
                 <div>
@@ -1787,11 +1775,10 @@ export default function Home() {
                   <span className="text-xs text-emerald-500/60">Voice Dictation:</span>
                   <button
                     onClick={toggleSpeechRecording}
-                    className={`p-2 rounded-full border transition duration-300 ${
-                      isRecording
+                    className={`p-2 rounded-full border transition duration-300 ${isRecording
                         ? "bg-rose-500/20 border-rose-400 text-rose-400 animate-pulse"
                         : "bg-emerald-500/5 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/10"
-                    }`}
+                      }`}
                     title={speechSupported ? "Toggle dictation input" : "SpeechRecognition is not supported in this browser"}
                     disabled={!speechSupported}
                   >
@@ -1806,15 +1793,14 @@ export default function Home() {
                   const isUser = chat.role === "user";
                   return (
                     <div key={idx} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[75%] rounded-xl p-4 text-xs leading-relaxed space-y-2 border ${
-                        isUser 
-                          ? "bg-emerald-500/10 border-emerald-400 text-emerald-200" 
+                      <div className={`max-w-[75%] rounded-xl p-4 text-xs leading-relaxed space-y-2 border ${isUser
+                          ? "bg-emerald-500/10 border-emerald-400 text-emerald-200"
                           : "bg-emerald-950/20 border-emerald-500/10 text-emerald-100"
-                      }`}>
+                        }`}>
                         <span className="text-[9px] uppercase font-bold text-emerald-500/50 block font-mono">
                           {isUser ? "You" : "AgriPilot AI"}
                         </span>
-                        
+
                         {/* Custom markdown formatting helper blocks */}
                         <div className="space-y-2 font-light">
                           {chat.content.split("\n\n").map((para, id) => {
@@ -1879,7 +1865,7 @@ export default function Home() {
 
         </div>
       </main>
-      
+
     </div>
   );
 }
@@ -1887,21 +1873,21 @@ export default function Home() {
 // Simple fallback timelines database
 const TIMELINES_MOCK = {
   "Tomato": [
-    {week: 1, stage: "Land Preparation", activity: "Deep ploughing, compost spreading, soil moisture tuning.", risks: "None", fertilizers: "Organic compost", water: "Pre-irrigation", diseases: "None", market: "N/A"},
-    {week: 2, stage: "Sowing", activity: "Insert seeds into beds or trays.", risks: "None", fertilizers: "NPK 19-19-19", water: "Sprinklers daily", diseases: "None", market: "N/A"},
-    {week: 4, stage: "Transplanting", activity: "Move seedlings to rows with drip pipes.", risks: "Root rot", fertilizers: "DAP", water: "Drip 1 hour daily", diseases: "None", market: "N/A"},
-    {week: 6, stage: "Vegetative", activity: "Staking bamboo poles for vine support.", risks: "Weeds", fertilizers: "Urea top dress", water: "Drip alternate days", diseases: "Early blight", market: "Input costs check"},
-    {week: 8, stage: "Flowering & Fruit", activity: "Apply foliar Calcium Nitrate to secure fruits.", risks: "Flower drop", fertilizers: "Calcium Nitrate", water: "Consistent moisture", diseases: "Thrips", market: "Check mandi rates"},
-    {week: 12, stage: "Harvest Planning", activity: "Pick breaker stage crops for transits.", risks: "Splitting", fertilizers: "SOP", water: "Reduce watering", diseases: "Fruit rot", market: "Compare wholesale"},
-    {week: 13, stage: "Market Dispatch", activity: "Sorting, bagging, and dispatching to high buyer.", risks: "Spoilage", fertilizers: "None", water: "None", diseases: "None", market: "eNAM auction"}
+    { week: 1, stage: "Land Preparation", activity: "Deep ploughing, compost spreading, soil moisture tuning.", risks: "None", fertilizers: "Organic compost", water: "Pre-irrigation", diseases: "None", market: "N/A" },
+    { week: 2, stage: "Sowing", activity: "Insert seeds into beds or trays.", risks: "None", fertilizers: "NPK 19-19-19", water: "Sprinklers daily", diseases: "None", market: "N/A" },
+    { week: 4, stage: "Transplanting", activity: "Move seedlings to rows with drip pipes.", risks: "Root rot", fertilizers: "DAP", water: "Drip 1 hour daily", diseases: "None", market: "N/A" },
+    { week: 6, stage: "Vegetative", activity: "Staking bamboo poles for vine support.", risks: "Weeds", fertilizers: "Urea top dress", water: "Drip alternate days", diseases: "Early blight", market: "Input costs check" },
+    { week: 8, stage: "Flowering & Fruit", activity: "Apply foliar Calcium Nitrate to secure fruits.", risks: "Flower drop", fertilizers: "Calcium Nitrate", water: "Consistent moisture", diseases: "Thrips", market: "Check mandi rates" },
+    { week: 12, stage: "Harvest Planning", activity: "Pick breaker stage crops for transits.", risks: "Splitting", fertilizers: "SOP", water: "Reduce watering", diseases: "Fruit rot", market: "Compare wholesale" },
+    { week: 13, stage: "Market Dispatch", activity: "Sorting, bagging, and dispatching to high buyer.", risks: "Spoilage", fertilizers: "None", water: "None", diseases: "None", market: "eNAM auction" }
   ],
   "Maize": [
-    {week: 1, stage: "Land Preparation", activity: "Furrow channels excavation.", risks: "None", fertilizers: "Zinc sulphate", water: "Moist soil", diseases: "None", market: "N/A"},
-    {week: 2, stage: "Sowing", activity: "Sow seeds at 5cm deep.", risks: "Germination failure", fertilizers: "NPK 20:20:20", water: "Irrigate once", diseases: "None", market: "N/A"},
-    {week: 4, stage: "Early Vegetative", activity: "Thinning and weeding rows.", risks: "Armyworm", fertilizers: "Urea", water: "Irrigate every 10 days", diseases: "None", market: "N/A"},
-    {week: 6, stage: "Knee-High Stage", activity: "Earthing up soil to root anchorages.", risks: "Deficiencies", fertilizers: "Urea top dress", water: "Moderate", diseases: "Blight", market: "Starch prices"},
-    {week: 8, stage: "Tasseling", activity: "Monitor cob forming.", risks: "Dry spells", fertilizers: "Potassium spray", water: "Crucial watering", diseases: "Rust", market: "Feed mills demand"},
-    {week: 12, stage: "Harvesting", activity: "Drying cobs to 15% moisture.", risks: "Aflatoxin", fertilizers: "None", water: "None", diseases: "Rot", market: "Compare options"},
-    {week: 13, stage: "Dispatch", activity: "Shelling, bagging and shipping to terminal.", risks: "Damp storage", fertilizers: "None", water: "None", diseases: "None", market: "Apex Grain Hub"}
+    { week: 1, stage: "Land Preparation", activity: "Furrow channels excavation.", risks: "None", fertilizers: "Zinc sulphate", water: "Moist soil", diseases: "None", market: "N/A" },
+    { week: 2, stage: "Sowing", activity: "Sow seeds at 5cm deep.", risks: "Germination failure", fertilizers: "NPK 20:20:20", water: "Irrigate once", diseases: "None", market: "N/A" },
+    { week: 4, stage: "Early Vegetative", activity: "Thinning and weeding rows.", risks: "Armyworm", fertilizers: "Urea", water: "Irrigate every 10 days", diseases: "None", market: "N/A" },
+    { week: 6, stage: "Knee-High Stage", activity: "Earthing up soil to root anchorages.", risks: "Deficiencies", fertilizers: "Urea top dress", water: "Moderate", diseases: "Blight", market: "Starch prices" },
+    { week: 8, stage: "Tasseling", activity: "Monitor cob forming.", risks: "Dry spells", fertilizers: "Potassium spray", water: "Crucial watering", diseases: "Rust", market: "Feed mills demand" },
+    { week: 12, stage: "Harvesting", activity: "Drying cobs to 15% moisture.", risks: "Aflatoxin", fertilizers: "None", water: "None", diseases: "Rot", market: "Compare options" },
+    { week: 13, stage: "Dispatch", activity: "Shelling, bagging and shipping to terminal.", risks: "Damp storage", fertilizers: "None", water: "None", diseases: "None", market: "Apex Grain Hub" }
   ]
 };
