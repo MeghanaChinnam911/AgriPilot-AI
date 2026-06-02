@@ -10,7 +10,7 @@ from app.services.mock_data import (
 )
 
 # Attempt to configure Gemini
-GEMINI_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_KEY = os.getenv("AIzaSyBjIHLkH9rzfpNNswjFPs_zAlvG70FRql4")
 gemini_available = False
 
 if GEMINI_KEY:
